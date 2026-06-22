@@ -1,0 +1,70 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.Master.cs" Inherits="SistemaProductos.Site" %>
+<!DOCTYPE html>
+<html>
+<head runat="server">
+    <title>Gestión de Productos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        /* Estilos base para todo el sitio */
+        body { font-family: 'Segoe UI', sans-serif; }
+        .navbar { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); }
+        .navbar-brand { font-weight: 700; }
+        .nav-link { color: rgba(255,255,255,0.8) !important; font-weight: 500; }
+        .nav-link:hover { color: white !important; }
+        .main-content { min-height: 80vh; }
+
+        /* Fondo oscuro SOLO para las páginas públicas (sin sesión) */
+        body.public-bg {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+            position: relative;
+        }
+        body.public-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+        radial-gradient(circle at 20% 80%, rgba(37, 99, 235, 0.12) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.12) 0%, transparent 50%);
+    z-index: 0;
+    pointer-events: none; /* ← ESTA LÍNEA */
+}
+        /* Fondo claro para las páginas internas (con sesión) */
+        body.private-bg { background: #f8fafc; }
+    </style>
+</head>
+<body id="bodyMaster" runat="server" class="public-bg">
+    <form id="form1" runat="server">
+        <asp:Panel ID="pnlMenu" runat="server" Visible="false">
+            <nav class="navbar navbar-expand-lg navbar-dark">
+                <div class="container">
+                    <a class="navbar-brand" href="Categorias.aspx"><i class="fas fa-boxes me-2"></i>Gestión Productos</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav ms-auto">
+                            <li class="nav-item"><a class="nav-link" href="Categorias.aspx">Categorías</a></li>
+                            <li class="nav-item"><a class="nav-link" href="Productos.aspx">Productos</a></li>
+                            <li class="nav-item"><a class="nav-link" href="CargaMasiva.aspx">Carga Masiva</a></li>
+                            <li class="nav-item"><a class="nav-link" href="Estadisticas.aspx">Estadísticas</a></li>
+                            <li class="nav-item"><a class="nav-link" href="Proveedores.aspx">Proveedores</a></li>
+                            <li class="nav-item"><a class="nav-link" href="Perfil.aspx"><i class="fas fa-user"></i> Perfil</a></li>
+                            <li class="nav-item"><asp:LinkButton ID="lnkCerrar" runat="server" CssClass="nav-link" OnClick="lnkCerrar_Click"><i class="fas fa-sign-out-alt"></i> Salir</asp:LinkButton></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </asp:Panel>
+
+        <div class="container main-content mt-4">
+            <asp:ContentPlaceHolder ID="MainContent" runat="server" />
+        </div>
+        <footer class="text-center mt-4 py-3 border-top">
+            <small>&copy; 2026 - Gestión de Productos</small>
+        </footer>
+    </form>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
