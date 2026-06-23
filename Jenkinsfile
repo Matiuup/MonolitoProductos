@@ -39,7 +39,6 @@ pipeline {
                 bat '''
                     if exist "%PUBLISH_DIR%" rmdir /S /Q "%PUBLISH_DIR%"
                     mkdir "%PUBLISH_DIR%"
-                    :: Copiamos los archivos ya compilados (carpeta bin\Release)
                     xcopy /Y /E "SistemaProductos\\bin\\*" "%PUBLISH_DIR%\\"
                     echo Aplicacion empaquetada en %PUBLISH_DIR%
                 '''
