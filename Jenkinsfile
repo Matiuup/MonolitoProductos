@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         TOOLS_DIR = "${WORKSPACE}\\.tools"
+        PUBLISH_DIR = "${WORKSPACE}\\publish_output"
     }
 
     stages {
@@ -26,15 +27,21 @@ pipeline {
 
         stage('Compilar solucion') {
             steps {
-                bat '"C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" SistemaProductos.sln /p:Configuration=Release'
+                bat '''
+                    set MSBUILD="C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe"
+                    %MSBUILD% SistemaProductos.sln /p:Configuration=Release /p:UseSharedCompilation=false /p:UseRazorBuildServer=false
+                '''
             }
         }
 
         stage('Publicar aplicacion') {
             steps {
                 bat '''
-                    set MSBUILD="C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe"
-                    %MSBUILD% SistemaProductos/SistemaProductos.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile
+                    if exist "%PUBLISH_DIR%" rmdir /S /Q "%PUBLISH_DIR%"
+                    mkdir "%PUBLISH_DIR%"
+                    :: Copiamos los archivos ya compilados (carpeta bin\Release)
+                    xcopy /Y /E "SistemaProductos\\bin\\*" "%PUBLISH_DIR%\\"
+                    echo Aplicacion empaquetada en %PUBLISH_DIR%
                 '''
             }
         }
@@ -43,7 +50,7 @@ pipeline {
             steps {
                 bat '''
                     if not exist "C:\\inetpub\\wwwroot\\MonolitoApp" mkdir "C:\\inetpub\\wwwroot\\MonolitoApp"
-                    xcopy /Y /E "SistemaProductos\\bin\\Release\\Publish\\*" "C:\\inetpub\\wwwroot\\MonolitoApp\\"
+                    xcopy /Y /E "%PUBLISH_DIR%\\*" "C:\\inetpub\\wwwroot\\MonolitoApp\\"
                 '''
             }
         }
@@ -51,7 +58,7 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline completado exitosamente. La aplicacion esta en C:\\inetpub\\wwwroot\\MonolitoApp'
+            echo 'Pipeline completado exitosamente. Aplicacion en C:\\inetpub\\wwwroot\\MonolitoApp'
         }
         failure {
             echo 'El pipeline fallo. Revisa los logs.'
