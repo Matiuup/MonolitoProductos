@@ -2,7 +2,6 @@ pipeline {
     agent { label 'AgenteWindows' }
 
     environment {
-        // Carpeta temporal para herramientas
         TOOLS_DIR = "${WORKSPACE}\\.tools"
     }
 
@@ -21,7 +20,7 @@ pipeline {
 
         stage('Restaurar paquetes NuGet') {
             steps {
-                bat '"%TOOLS_DIR%\\nuget.exe" restore Monolito4B.sln'
+                bat '"%TOOLS_DIR%\\nuget.exe" restore SistemaProductos.sln'
             }
         }
 
@@ -36,7 +35,7 @@ pipeline {
                         exit /b 1
                     )
                     echo Usando MSBuild: %MSBUILD_PATH%
-                    "%MSBUILD_PATH%" Monolito4B.sln /p:Configuration=Release
+                    "%MSBUILD_PATH%" SistemaProductos.sln /p:Configuration=Release
                 '''
             }
         }
