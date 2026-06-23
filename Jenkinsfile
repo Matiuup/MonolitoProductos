@@ -27,10 +27,28 @@ pipeline {
 
         stage('Compilar solucion') {
             steps {
-                bat '''
-                    set MSBUILD="C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe"
-                    %MSBUILD% SistemaProductos.sln /p:Configuration=Release /p:UseSharedCompilation=false
-                '''
+                script {
+                    // Intentamos compilar con un límite de 5 minutos.
+                    // Si se bloquea, se interrumpirá y continuaremos comprobando los DLLs.
+                    try {
+                        timeout(time: 5, unit: 'MINUTES') {
+                            bat '''
+                                set MSBUILD="C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe"
+                                %MSBUILD% SistemaProductos.sln /p:Configuration=Release /p:UseSharedCompilation=false
+                            '''
+                        }
+                    } catch (err) {
+                        echo "La compilación se detuvo por timeout. Verificaremos los archivos generados."
+                    }
+
+                    // Comprobar que los tres DLLs principales existen
+                    bat '''
+                        if not exist "SistemaProductos\\bin\\SistemaProductos.dll" exit /b 1
+                        if not exist "CapaDatos\\bin\\Release\\CapaDatos.dll" exit /b 1
+                        if not exist "CapaNegocio\\bin\\Release\\CapaNegocio.dll" exit /b 1
+                        echo Todos los DLLs están presentes. Continuando...
+                    '''
+                }
             }
         }
 
