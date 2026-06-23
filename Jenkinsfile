@@ -28,20 +28,15 @@ pipeline {
         stage('Compilar solucion') {
             steps {
                 script {
-                    // Intentamos compilar con un límite de 5 minutos.
-                    // Si se bloquea, se interrumpirá y continuaremos comprobando los DLLs.
-                    try {
-                        timeout(time: 5, unit: 'MINUTES') {
-                            bat '''
-                                set MSBUILD="C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe"
-                                %MSBUILD% SistemaProductos.sln /p:Configuration=Release /p:UseSharedCompilation=false
-                            '''
-                        }
-                    } catch (err) {
-                        echo "La compilación se detuvo por timeout. Verificaremos los archivos generados."
-                    }
-
-                    // Comprobar que los tres DLLs principales existen
+                    // Iniciar MSBuild en segundo plano y forzar su cierre tras 3 minutos
+                    bat '''
+                        set MSBUILD="C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe"
+                        start "Compile" /B %MSBUILD% SistemaProductos.sln /p:Configuration=Release /p:UseSharedCompilation=false > build.log 2>&1
+                        timeout /T 180 /NOBREAK
+                        taskkill /F /IM MSBuild.exe /T >nul 2>&1
+                        echo MSBuild finalizado por timeout.
+                    '''
+                    // Verificar que los DLLs necesarios existen
                     bat '''
                         if not exist "SistemaProductos\\bin\\SistemaProductos.dll" exit /b 1
                         if not exist "CapaDatos\\bin\\Release\\CapaDatos.dll" exit /b 1
