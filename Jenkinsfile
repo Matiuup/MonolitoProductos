@@ -2,8 +2,10 @@ pipeline {
     agent { label 'AgenteWindows' }
 
     environment {
-        TOOLS_DIR = "${WORKSPACE}\\.tools"
+        TOOLS_DIR   = "${WORKSPACE}\\.tools"
         PUBLISH_DIR = "${WORKSPACE}\\publish_output"
+        // Evitar reutilización de nodos de MSBuild
+        MSBUILDDISABLENODEREUSE = '1'
     }
 
     stages {
@@ -29,7 +31,7 @@ pipeline {
             steps {
                 bat '''
                     set MSBUILD="C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe"
-                    %MSBUILD% SistemaProductos.sln /p:Configuration=Release /p:UseSharedCompilation=false /p:UseRazorBuildServer=false
+                    %MSBUILD% SistemaProductos.sln /p:Configuration=Release /p:UseSharedCompilation=false /p:UseRazorBuildServer=false -nr:false
                 '''
             }
         }
