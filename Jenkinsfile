@@ -26,27 +26,13 @@ pipeline {
 
         stage('Compilar solucion') {
             steps {
-                bat '''
-                    @echo on
-                    set MSBUILD_PATH=
-                    for /f "delims=" %%i in ('dir /s /b "C:\\Program Files\\Microsoft Visual Studio\\*\\MSBuild\\Current\\Bin\\MSBuild.exe" 2^>nul') do set MSBUILD_PATH=%%i
-                    if not defined MSBUILD_PATH (
-                        echo No se encontró MSBuild.exe. Revise la instalación de Visual Studio.
-                        exit /b 1
-                    )
-                    echo Usando MSBuild: %MSBUILD_PATH%
-                    "%MSBUILD_PATH%" SistemaProductos.sln /p:Configuration=Release
-                '''
+                bat '"C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" SistemaProductos.sln /p:Configuration=Release'
             }
         }
 
         stage('Publicar aplicacion') {
             steps {
-                bat '''
-                    set MSBUILD_PATH=
-                    for /f "delims=" %%i in ('dir /s /b "C:\\Program Files\\Microsoft Visual Studio\\*\\MSBuild\\Current\\Bin\\MSBuild.exe" 2^>nul') do set MSBUILD_PATH=%%i
-                    "%MSBUILD_PATH%" SistemaProductos/SistemaProductos.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile
-                '''
+                bat '"C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" SistemaProductos/SistemaProductos.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
             }
         }
 
