@@ -32,20 +32,26 @@ pipeline {
 
         stage('Publicar aplicacion') {
             steps {
-                bat '"C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" SistemaProductos/SistemaProductos.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile'
+                bat '''
+                    set MSBUILD="C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe"
+                    %MSBUILD% SistemaProductos/SistemaProductos.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile
+                '''
             }
         }
 
         stage('Desplegar en IIS') {
             steps {
-                bat 'xcopy /Y /E "SistemaProductos\\bin\\Release\\Publish\\*" "C:\\inetpub\\wwwroot\\MonolitoApp\\"'
+                bat '''
+                    if not exist "C:\\inetpub\\wwwroot\\MonolitoApp" mkdir "C:\\inetpub\\wwwroot\\MonolitoApp"
+                    xcopy /Y /E "SistemaProductos\\bin\\Release\\Publish\\*" "C:\\inetpub\\wwwroot\\MonolitoApp\\"
+                '''
             }
         }
     }
 
     post {
         success {
-            echo 'Pipeline completado exitosamente'
+            echo 'Pipeline completado exitosamente. La aplicacion esta en C:\\inetpub\\wwwroot\\MonolitoApp'
         }
         failure {
             echo 'El pipeline fallo. Revisa los logs.'
